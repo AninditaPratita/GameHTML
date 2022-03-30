@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Game dengan Javascript dan HTML5</title> <!--tag title untuk membuat judul HTML-->
+	<style> /*tag ini berisi baris kode CSS untuk mengatur tampilan halaman website*/
+		*{padding:0; margin:0; margin-top: 35px;} /*padding untuk mengatur jarak elemen html dari dalam sedangkan margin mengatur jarak elemen html dari luar*/
+		canvas {background-image: url("bg2.jpg"); background-repeat: no-repeat; background-size: cover ; display: block; margin: 0 auto;} /*baris kode ini merupakan CSS untuk mengatur bagian kanvas dan background*/
+	</style> <!--tag penutup dari style-->
+	</head> <!--tag penutup dari head-->
+		<body> <!--tag pembuka dari body-->
+			<canvas id="myCanvas" width="1000" height="550" style="border:2px solid midnightblue;"></canvas> <!--tag yang di dalamnya terdapat elemen canvas, mengatur tinggi dan lebar canvas game-->
+			<script> /*tag yang berisi kode java script */
+				//membuat canvas kosong				
+				var canvas = document.getElementById('myCanvas'); /*baris kode untuk mendeklarasikan variabel canvas*/
+				var context = canvas.getContext('2d'); //mendeklarasikan variabel context merupakan objek dari canvas
+				var speed= 10; //mendeklarasikan mengatur kecepatan objek speed
+				gameSpeed = 100;//mendeklarasikan mengatur kecepatan game
+				var bird = { //tag variabel untuk mengatur burung
+					x : canvas.width / 2, //x dan y untuk koordinat dari burung
+					y : canvas.height / 2,
+					vx : 0, //variabel vx merepresentasikan kecepatan horizontal burung
+					vy : 1}; //variabel vy merepresentasikan kecepatan vertical burung
+
+				var pip = []; //mendeklarasikan variabel pipa
+				var gravity = 0.2; //mendeklarasikan variabel gravity untuk efek grafitasi pada objek tertentu
+				var bounce = 4; //mendeklarasikan variabel bounce untuk besaran pantulan objek
+				var distance = 100; //mendeklarasikan variabel untuk mengatur jarak
+				var dir = 'left'; //mendeklarasikan variabel dir
+				document.onkeydown = function (e){ //penggunaan event ketika tombol ditekan pada keyboard
+						//kode dibawah ini merupakan penggunaan onkeydown untuk melakukan validasi terhadap suatu input 
+						if(!e){
+							e = window.e;
+						}
+						var code = e.keyCode; //mendeklarasikan variabel code
+						if(e.charCode && codee == 0){
+							code = e.charCode;
+						}
+						switch(code){ //kondisi pecabangan, membandingkan isi variabel 'code' dengan beberapa nilai di bawah ini sesuai case
+							case 37://left
+							if(dir!='right')
+								dir='left';
+							break; //break
+							case 38:
+							if(dir!='down')
+								dir ='up';
+							break; //break
+							case 39:
+							if(dir!='left')
+								dir='right';
+							break; //break
+							case 40:
+							if(dir!='up')
+								dir ='down';
+							break; //break
+						}
+					}
+					var b = 0.8; //mendeklarasikan variabel b
+					var birds = new Image(); //mendeklarasikan variabel untuk menampilkan icon bird pada canvas
+					birds.src = "bird.png" //memanggil file bird
+
+					function makeBird(){ //di dalam fungsi ini untuk mengatur posisi burung dan gerak burung 
+						context.beginPath(); //untuk memulai path / membuat burung
+						context.drawImage(birds, bird.x, bird.y, 40, 40); //context draw image untuk menampilkan icon bird dan mengatur ukurannya
+						context.closePath(); //untuk mengakhiri path / membuat burung
+						bird.y += bird.vy;
+						bird.vy += gravity;
+						if(dir=='up'){
+							bird.vy = -bounce;
+							dir = '';
+						}
+						if(bird.y + 10 >= canvas.height){
+							// dir = 'up';
+						}
+					} 
+					var pipa1 = new Image(); //mendeklarasikan variabel untuk memasukkan gambar pipa atas
+					pipa1.src = "pipa1.png" //memanggil file pipa1
+					var pipa2 = new Image(); //mendeklarasikan variabel untuk memasukkan gambar pipa bawah
+					pipa2.src = "pipa2.png" //memanggil file pipa2
+					function makePip(){ // di dalam fungsi ini untuk mengatur posisi dan munculnya pipa 
+						for (p of pip){
+							context.beginPath(); //membuat objek berbentuk persegi berfungsi sebagai pipa atas
+							context.drawImage(pipa1,p.top.x, p.top.y, 35, p.top.height);
+							context.closePath(); //akhir daripada objek pipa
+
+							p.bottom.y = p.top.height +distance; //mengatur jarak antara pipa
+							p.bottom.height = (canvas.height - p.bottom.y); //mengatur jarak antara pipa
+
+							context.beginPath(); //membuat membuat objek berbentuk persegi berfungsi sebagai pipa bawah
+							context.drawImage(pipa2,p.bottom.x, p.bottom.y, 35,p.bottom.height);
+							context.closePath();//akhir daripada objek pipa
+
+							//mengatur koordinat jarak antar pipa 
+							p.bottom.x -= 1;
+							p.top.x -= 1;
+
+							if(p.top.x < -10){
+								pip.shift();
+							}
+							//dibawah ini merupakan baris kode ketika burung bertumbuk dengan pipa maka akan keluar pesan GAME OVER dan muncul perolehan skor nilai 
+							if(isCollideB(bird, p.bottom) || isCollideT(bird, p.top) || bird.y +10>= canvas.height){
+								alert ('GAME OVER, Nilai Akhir Anda : '+score);
+								window.location.reload();
+							}
+							if(score % 10 == 0){
+								console.log(distance);
+								score += 1;
+								distance -= 5;
+							}
+						}
+					}
+					//fungsi untuk mengatur ketika burung bertumbuk dengan pipa
+					function isCollideB(b,p){
+						return(
+							(b.x +10 > p.x) &&
+							(b.x < p.x+10) &&
+							(b.y > p.y || b.y +10 >p.y) );
+					}
+					//fungsi untuk mengatur ketika burung bertumbuk dengan pipa
+					function isCollideT(b,p){
+						return(
+							(b.x +10 > p.x) &&
+							(b.x < p.x+10) && 
+							(b.y < p.y + p.height)
+							);
+					}
+					//fungsi yang mengatur ketinggian pipa
+					function rnd(min, max){
+						var r = Math.round(Math.random() * (max - min)+ min);
+						return (r-r% speed);
+					}
+					var score =0; //mendeklarasikan variabel score 
+					var frame =0; //mendeklarasikan variabel frame
+					(function loop() {
+						requestAnimationFrame(function(){ //membuat animasi
+						context.clearRect (0, 0, canvas.width, canvas.height); //menghapus seluruh isi canvas
+						//menggambar persegi transparan, menjadi terhapus pada koordinat tertentu
+						//pipa akan menghilang setelah burung melewatinya
+						if(frame % gameSpeed == 0) {
+							pip.push({
+								top:{
+									x : canvas.width,
+									y : 0,
+									height : rnd(70,140),
+									width : 10,
+								},
+								bottom : {
+									x : canvas.width, y : 0,
+									height : rnd(100,160), 
+									width : 10,
+								}
+							});
+							score++; //score bertambah 
+						}
+						makeBird(); //memanggil fungsi burung yang sudah dibuat 
+						makePip(); //memanggil fungsi pipa yang sudah dibuat
+						frame++;
+						loop(); //memanggil fungsi loop yang sudah dibuat
+					})
+				}) ();
+			</script> <!--tag penutup javascript-->
+		</body><!--tag penutup body atau konten-->
+</html> <!--tag penutup html-->
